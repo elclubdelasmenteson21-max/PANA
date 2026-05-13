@@ -18,6 +18,14 @@ buildscript {
     }
 }
 
+configurations.all {
+    resolutionStrategy {
+        dependencySubstitution {
+            substitute module('com.facebook.react:react-native') using module('com.facebook.react:react-android:0.73.4')
+        }
+    }
+}
+
 allprojects {
     repositories {
         maven { url("$rootDir/../node_modules/react-native/android") }
