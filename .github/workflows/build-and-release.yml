@@ -54,10 +54,15 @@ jobs:
             fi
           done
 
-      - name: List app tasks
+      - name: Dry run assembleDebug
         continue-on-error: true
         run: |
-          cd android && chmod +x gradlew && ./gradlew :app:tasks --all 2>&1 | head -80
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --dry-run --no-daemon 2>&1 | tee dryrun.log
+          echo "=== DRY RUN TASKS ==="
+          grep "^:" dryrun.log
+          echo "=== END ==="
 
       - name: Build APK
         run: |
