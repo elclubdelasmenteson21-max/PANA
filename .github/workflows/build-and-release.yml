@@ -38,10 +38,21 @@ jobs:
             fi
           done
 
+      - name: Debug environment
+        run: |
+          echo "=== Java version ==="
+          java -version 2>&1
+          echo "=== Gradle wrapper ==="
+          ls -la android/gradlew
+          file android/gradlew
+          echo "=== Gradle wrapper properties ==="
+          cat android/gradle/wrapper/gradle-wrapper.properties
+          echo "=== Test gradlew ==="
+          cd android && chmod +x gradlew && ./gradlew --version 2>&1 || echo "GRADLEW FAILED"
+
       - name: Build APK
         run: |
           cd android
-          chmod +x gradlew
           ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee ../build.log
           exit ${PIPESTATUS[0]}
 
