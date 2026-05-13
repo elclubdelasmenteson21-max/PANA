@@ -39,7 +39,19 @@ jobs:
           done
 
       - name: Build APK
-        run: cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon --warning-mode all
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace --info 2>&1 | tee ../build.log
+          # Check if APK was created
+          ls -la app/build/outputs/apk/debug/ 2>/dev/null || echo "No APK output found"
+
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: build.log
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
