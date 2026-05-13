@@ -43,8 +43,9 @@ jobs:
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee build.log
-          echo "=== Tasks that ran ==="
-          grep "^>" build.log | head -20 || echo "No task output found"
+          echo "====== GRADLE EXIT CODE: ${PIPESTATUS[0]} ======"
+          echo "====== FULL BUILD LOG ======"
+          cat build.log
           exit ${PIPESTATUS[0]}
 
       - name: Upload build logs
@@ -57,13 +58,12 @@ jobs:
       - name: Find APK
         if: always()
         run: |
-          echo "=== Searching for APK ==="
-          find android -name "*.apk" 2>/dev/null || echo "No APK found"
-          echo "=== Android build output ==="
-          ls -la android/app/build/outputs/ 2>/dev/null || echo "No outputs dir"
-          ls -la android/app/build/outputs/apk/ 2>/dev/null || echo "No apk dir"
-          echo "=== Tasks ==="
-          cd android && ./gradlew tasks --all 2>/dev/null | grep -i "assemble\|apk\|bundle" | head -20 || echo "No tasks grep"
+          echo "=== APK find ==="
+          find . -name "*.apk" -type f 2>/dev/null
+          echo "=== Build output ==="
+          find android/app/build -name "*.apk" -o -name "*.aab" 2>/dev/null
+          find android/app/.cxx -type f 2>/dev/null | head -5 || true
+          find . -name "*.dex" -type f 2>/dev/null | head -5 || true
 
       - name: Upload APK
         if: success()
