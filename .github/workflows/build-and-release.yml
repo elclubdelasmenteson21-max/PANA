@@ -42,14 +42,23 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew --version --no-daemon 2>&1 | tee wrapper.log
+          ./gradlew --version --no-daemon --stacktrace 2>&1 | tee wrapper.log
           echo "=== Wrapper exit code: $? ==="
+          echo "=== Wrapper log ==="
+          cat wrapper.log
+
+      - name: Check Gradle projects
+        continue-on-error: true
+        run: |
+          cd android
+          ./gradlew projects --no-daemon --stacktrace 2>&1 | tee projects.log
+          echo "=== Exit code: $? ==="
+          tail -30 projects.log
 
       - name: Build APK
         run: |
           export ANDROID_HOME="$ANDROID_SDK_ROOT"
           cd android
-          chmod +x gradlew
           ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee build.log
           gradle_exit=${PIPESTATUS[0]}
           echo "=== Gradle exit code: $gradle_exit ==="
