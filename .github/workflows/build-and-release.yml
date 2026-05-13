@@ -30,13 +30,13 @@ jobs:
 
       - name: Patch libraries for Gradle compatibility
         run: |
-          # Fix react-native-voice deprecated compile() call
-          if [ -f node_modules/react-native-voice/android/build.gradle ]; then
-            sed -i 's/compile /implementation /g' node_modules/react-native-voice/android/build.gradle
-          fi
-          if [ -f node_modules/@react-native-voice/voice/android/build.gradle ]; then
-            sed -i 's/compile /implementation /g' node_modules/@react-native-voice/voice/android/build.gradle
-          fi
+          for f in node_modules/*/android/build.gradle node_modules/@*/*/android/build.gradle; do
+            if [ -f "$f" ]; then
+              sed -i 's/compile /implementation /g' "$f"
+              sed -i 's/testCompile /testImplementation /g' "$f"
+              sed -i 's/androidTestCompile /androidTestImplementation /g' "$f"
+            fi
+          done
 
       - name: Install Gradle
         run: |
