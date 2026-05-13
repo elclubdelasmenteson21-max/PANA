@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es-VE">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="PANA - Tu mercado con inteligencia artificial para Venezuela. Compra, vende, importa y exporta con videos de 60 segundos.">
+  <meta name="theme-color" content="#000000">
+  <title>PANA - Tu Mercado con IA</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.6; }
+      15% { transform: scale(0.85); opacity: 0.9; }
+      30% { transform: scale(1.05); opacity: 1; }
+      45% { transform: scale(0.95); opacity: 0.8; }
+      60% { transform: scale(1); opacity: 0.7; }
+      100% { transform: scale(1); opacity: 0.6; }
+    }
+    
+    @keyframes ringPulse {
+      0% { transform: scale(1); opacity: 0.3; }
+      50% { transform: scale(1.2); opacity: 0.1; }
+      100% { transform: scale(1); opacity: 0.3; }
+    }
+    
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 0 10px #FF6B00, 0 0 20px #FF6B00; }
+      50% { box-shadow: 0 0 30px #FF6B00, 0 0 60px #FF6B00; }
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #000000;
+      color: #ffffff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    /* ─── Splash Section ─── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+    
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(ellipse at center, rgba(255,107,0,0.03) 0%, transparent 70%);
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    .ring-container {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      margin-bottom: 30px;
+    }
+    
+    .outer-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 280px;
+      height: 280px;
+      margin: -140px 0 0 -140px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 107, 0, 0.2);
+      animation: ringPulse 3s ease-in-out infinite;
+    }
+    
+    .glow-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 200px;
+      height: 200px;
+      margin: -100px 0 0 -100px;
+      border-radius: 50%;
+      animation: glow 3s ease-in-out infinite;
+    }
+    
+    .ring {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      border: 3px solid #FF6B00;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      animation: pulse 1.5s ease-in-out infinite;
+      background: rgba(255, 107, 0, 0.05);
+      position: relative;
+    }
+    
+    .ring::before {
+      content: '';
+      position: absolute;
+      inset: -15px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #FF6B00, #FF8C00, #FF6B00);
+      opacity: 0.08;
+    }
+    
+    .pana-title {
+      font-size: 48px;
+      font-weight: 900;
+      color: #FF6B00;
+      letter-spacing: 6px;
+      text-shadow: 0 0 30px rgba(255, 107, 0, 0.5);
+    }
+    
+    .pana-tagline {
+      font-size: 10px;
+      color: #666;
+      letter-spacing: 3px;
+      margin-top: 12px;
+      text-align: center;
+      line-height: 1.6;
+    }
+    
+    .tagline-main {
+      font-size: 13px;
+      color: #FF6B00;
+      letter-spacing: 2px;
+      margin-top: 40px;
+      font-weight: 600;
+    }
+    
+    /* ─── Features Section ─── */
+    .features {
+      padding: 80px 0;
+    }
+    
+    .features h2 {
+      font-size: 28px;
+      margin-bottom: 10px;
+      color: #FF6B00;
+    }
+    
+    .features > p {
+      color: #666;
+      margin-bottom: 50px;
+      font-size: 14px;
+    }
+    
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      text-align: left;
+    }
+    
+    .feature-card {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 16px;
+      padding: 24px;
+      transition: border-color 0.3s;
+    }
+    
+    .feature-card:hover {
+      border-color: #FF6B00;
+    }
+    
+    .feature-icon {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+    
+    .feature-card h3 {
+      font-size: 16px;
+      margin-bottom: 8px;
+      color: #fff;
+    }
+    
+    .feature-card p {
+      font-size: 13px;
+      color: #888;
+      line-height: 1.5;
+    }
+    
+    /* ─── CTA / Download ─── */
+    .download {
+      padding: 60px 0;
+      border-top: 1px solid #111;
+    }
+    
+    .download h2 {
+      font-size: 24px;
+      margin-bottom: 12px;
+    }
+    
+    .download p {
+      color: #888;
+      font-size: 14px;
+      margin-bottom: 30px;
+    }
+    
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #FF6B00;
+      color: #fff;
+      text-decoration: none;
+      padding: 16px 40px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      transition: all 0.3s;
+    }
+    
+    .download-btn:hover {
+      background: #E06000;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(255, 107, 0, 0.3);
+    }
+    
+    .download-note {
+      font-size: 11px;
+      color: #555;
+      margin-top: 16px;
+    }
+    
+    /* ─── Developer ─── */
+    .developer {
+      padding: 40px 0;
+      border-top: 1px solid #111;
+    }
+    
+    .developer p {
+      color: #555;
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+    
+    .developer .name {
+      color: #FF6B00;
+      font-weight: 600;
+    }
+    
+    .developer .tagline {
+      color: #444;
+      font-size: 11px;
+      letter-spacing: 2px;
+      margin-top: 12px;
+    }
+    
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 107, 0, 0.1);
+      padding: 6px 14px;
+      border-radius: 20px;
+      margin-top: 12px;
+      font-size: 11px;
+      color: #FF6B00;
+    }
+    
+    .beta-badge {
+      display: inline-block;
+      background: rgba(0, 200, 83, 0.1);
+      color: #00C853;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+    
+    /* ─── Responsive ─── */
+    @media (max-width: 480px) {
+      .pana-title { font-size: 36px; }
+      .ring { width: 160px; height: 160px; }
+      .outer-ring { width: 220px; height: 220px; margin: -110px 0 0 -110px; }
+      .glow-ring { width: 160px; height: 160px; margin: -80px 0 0 -80px; }
+      .ring-container { width: 160px; height: 160px; }
+      .features-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="outer-ring"></div>
+      <div class="ring-container">
+        <div class="glow-ring"></div>
+        <div class="ring">
+          <div class="pana-title">PANA</div>
+          <div class="pana-tagline">AQUI HAY PANA<br>PA' RATO!</div>
+        </div>
+      </div>
+      <h1 style="font-size: 20px; color: #fff; margin-top: 20px; font-weight: 600;">
+        Tu Mercado con Inteligencia Artificial
+      </h1>
+      <p style="color: #666; margin-top: 8px; font-size: 14px;">
+        Para Venezuela. Para ti.
+      </p>
+      <div class="tagline-main">↓</div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="features">
+      <div class="beta-badge">🚀 VERSIÓN BETA - GRATIS</div>
+      <h2>¿Qué es PANA?</h2>
+      <p>La aplicación venezolana donde puedes publicar videos de 60 segundos<br>
+      sobre lo que vendes, produces, importas o exportas.</p>
+      
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🎥</div>
+          <h3>Solo Videos</h3>
+          <p>Publica videos de hasta 60 segundos mostrando tus productos. De una aguja hasta maquinaria industrial.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🤖</div>
+          <h3>Control por IA</h3>
+          <p>Interactúa por voz y texto con nuestra IA que habla en venezolano. ¡Como tener un pana experto siempre contigo!</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">☁️</div>
+          <h3>Todo en la Nube</h3>
+          <p>Tus videos se guardan automáticamente en la nube. Accede a tu galería cuando quieras.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🇻🇪</div>
+          <h3>Hecho en Venezuela</h3>
+          <p>Diseñado para el mercado venezolano. B2B, B2C, compra, venta, importación y exportación.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- DOWNLOAD -->
+    <section class="download">
+      <h2>Descarga PANA</h2>
+      <p>La versión beta está disponible para Android. <strong>Totalmente gratis.</strong></p>
+      <a href="#" class="download-btn" onclick="alert('Próximamente disponible. ¡Suscríbete para recibir el APK!')">
+        📲 Descargar APK
+      </a>
+      <p class="download-note">
+        Compatible con Android 8.0+. Descarga directa desde la nube.
+      </p>
+      <div style="margin-top: 30px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+        <span style="background: #111; padding: 8px 16px; border-radius: 8px; color: #888; font-size: 12px; border: 1px solid #222;">
+          🆓 Gratis
+        </span>
+        <span style="background: #111; padding: 8px 16px; border-radius: 8px; color: #888; font-size: 12px; border: 1px solid #222;">
+          🎥 Videos 60s
+        </span>
+        <span style="background: #111; padding: 8px 16px; border-radius: 8px; color: #888; font-size: 12px; border: 1px solid #222;">
+          🗣️ Voz y Texto
+        </span>
+        <span style="background: #111; padding: 8px 16px; border-radius: 8px; color: #888; font-size: 12px; border: 1px solid #222;">
+          ☁️ Nube
+        </span>
+      </div>
+    </section>
+
+    <!-- DEVELOPER -->
+    <section class="developer">
+      <p>Desarrollado por <span class="name">Alvaro Tabata</span></p>
+      <p>Versión Beta 1.0.0</p>
+      <div class="badge">🤖 Controlado por Inteligencia Artificial</div>
+      <div class="tagline">AQUI HAY PANA PA' RATO!</div>
+    </section>
+  </div>
+</body>
+</html>

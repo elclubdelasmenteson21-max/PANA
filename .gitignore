@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# React Native
+ios/Pods/
+ios/build/
+android/app/build/
+android/.gradle/
+android/build/
+*.hprof
+
+# Firebase
+backend/functions/lib/
+backend/functions/node_modules/
+.firebase/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+*.orig
+
+# Metro
+.metro-health-check*
+
+# Testing
+coverage/
+
+# Bundle artifacts
+*.jsbundle
+
+# Temp
+tmp/
+temp/

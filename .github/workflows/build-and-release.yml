@@ -1,0 +1,235 @@
+name: Build and Release PANA APK
+
+on:
+  push:
+    branches: [main, beta]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g., 1.0.0-beta.2)'
+        required: true
+        default: '1.0.0-beta.1'
+
+env:
+  ANDROID_COMPILE_SDK: 34
+  ANDROID_BUILD_TOOLS: 34.0.0
+  ANDROID_SDK_TOOLS: 10406996
+  GRADLE_VERSION: 8.4
+
+jobs:
+  # ─────────────────────────────────────────────
+  # JOB 1: Análisis y linting
+  # ─────────────────────────────────────────────
+  lint:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript check
+        run: npx tsc --noEmit
+
+      - name: ESLint
+        run: npx eslint src/ --ext .ts,.tsx
+        continue-on-error: true
+
+      - name: Cache node_modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+  # ─────────────────────────────────────────────
+  # JOB 2: Build APK para Android
+  # ─────────────────────────────────────────────
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 17
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Create env file
+        run: |
+          echo "FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}" >> .env
+          echo "FIREBASE_AUTH_DOMAIN=${{ secrets.FIREBASE_AUTH_DOMAIN }}" >> .env
+          echo "FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}" >> .env
+          echo "FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }}" >> .env
+          echo "FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}" >> .env
+          echo "FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }}" >> .env
+          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> .env
+
+      - name: Create google-services.json
+        run: |
+          echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > android/app/google-services.json
+
+      - name: Build Android APK (Debug)
+        run: |
+          cd android
+          ./gradlew assembleDebug --no-daemon
+
+      - name: Build Android AAB (Release)
+        run: |
+          cd android
+          ./gradlew bundleRelease --no-daemon
+        continue-on-error: true
+
+      - name: Sign APK (if keystore available)
+        if: secrets.ANDROID_KEYSTORE_BASE64 != ''
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > android/app/release.keystore
+          cd android
+          ./gradlew assembleRelease --no-daemon
+        continue-on-error: true
+
+      - name: Upload APK as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pana-apk-debug
+          path: android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: warn
+
+      - name: Upload AAB as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pana-aab-release
+          path: android/app/build/outputs/bundle/release/*.aab
+          if-no-files-found: warn
+
+      - name: Rename APK for release
+        run: |
+          mkdir -p release
+          if [ -f android/app/build/outputs/apk/debug/app-debug.apk ]; then
+            cp android/app/build/outputs/apk/debug/app-debug.apk release/PANA-${{ github.event.inputs.version || 'beta' }}.apk
+          fi
+
+      - name: Upload release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: pana-release-apk
+          path: release/*.apk
+
+  # ─────────────────────────────────────────────
+  # JOB 3: Subir a Firebase App Distribution
+  # ─────────────────────────────────────────────
+  distribute:
+    name: Distribute via Firebase
+    runs-on: ubuntu-latest
+    needs: build-android
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download APK
+        uses: actions/download-artifact@v4
+        with:
+          name: pana-apk-debug
+          path: apk
+
+      - name: Setup Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Upload to Firebase App Distribution
+        run: |
+          firebase appdistribution:distribute apk/*.apk \
+            --app ${{ secrets.FIREBASE_APP_ID }} \
+            --groups "beta-testers" \
+            --release-notes "Nueva versión beta de PANA - ¡AQUI HAY PANA PA' RATO!" \
+            --token "${{ secrets.FIREBASE_TOKEN }}"
+        continue-on-error: true
+
+  # ─────────────────────────────────────────────
+  # JOB 4: Publicar Landing Page en Firebase Hosting
+  # ─────────────────────────────────────────────
+  deploy-landing:
+    name: Deploy Landing Page
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Deploy to Firebase Hosting
+        run: |
+          firebase deploy --only hosting \
+            --token "${{ secrets.FIREBASE_TOKEN }}"
+        continue-on-error: true
+
+  # ─────────────────────────────────────────────
+  # JOB 5: Crear Release en GitHub
+  # ─────────────────────────────────────────────
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: build-android
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download APK
+        uses: actions/download-artifact@v4
+        with:
+          name: pana-release-apk
+          path: release
+
+      - name: Generate release notes
+        run: |
+          cat > release-notes.md << 'EOF'
+          ## PANA Beta - ¡AQUI HAY PANA PA' RATO!
+
+          ### Novedades:
+          - Interfaz controlada por IA con voz y texto
+          - Publicación de videos de 60 segundos
+          - Galería personal en la nube
+          - Categorías B2B y B2C
+          - Registro gratuito
+
+          ### Instalación:
+          1. Descarga el APK
+          2. Habilita "Instalar apps de orígenes desconocidos" en tu Android
+          3. Abre el archivo APK e instala
+
+          ### Nota:
+          Versión beta gratuita. Desarrollado por Alvaro Tabata.
+          EOF
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.inputs.version || github.ref_name }}
+          name: "PANA ${{ github.event.inputs.version || github.ref_name }}"
+          body_path: release-notes.md
+          files: release/*.apk
+          draft: false
+          prerelease: true

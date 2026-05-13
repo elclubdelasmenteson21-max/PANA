@@ -1,0 +1,125 @@
+import { Dimensions } from 'react-native';
+
+const { width, height } = Dimensions.get('window');
+
+export const COLORS = {
+  primary: '#FF6B00',
+  primaryDark: '#E06000',
+  primaryLight: '#FF8533',
+  secondary: '#FF8C00',
+  
+  background: '#000000',
+  surface: '#111111',
+  surfaceLight: '#1A1A1A',
+  card: '#1E1E1E',
+  
+  text: '#FFFFFF',
+  textSecondary: '#AAAAAA',
+  textMuted: '#666666',
+  
+  border: '#333333',
+  borderLight: '#444444',
+  
+  success: '#00C853',
+  warning: '#FFD600',
+  error: '#FF1744',
+  info: '#2979FF',
+  
+  white: '#FFFFFF',
+  black: '#000000',
+  transparent: 'transparent',
+  
+  overlay: 'rgba(0, 0, 0, 0.7)',
+  gradientStart: '#FF6B00',
+  gradientEnd: '#FF8C00',
+};
+
+export const SIZES = {
+  width,
+  height,
+  padding: 16,
+  paddingSmall: 8,
+  paddingLarge: 24,
+  margin: 16,
+  radius: 12,
+  radiusSmall: 8,
+  radiusLarge: 20,
+  radiusFull: 9999,
+  icon: 24,
+  iconLarge: 32,
+  iconSmall: 16,
+  fontSmall: 12,
+  fontMedium: 14,
+  fontLarge: 16,
+  fontXLarge: 20,
+  fontXXLarge: 24,
+  fontTitle: 28,
+  fontDisplay: 36,
+  ringSize: 200,
+  ringBorderWidth: 4,
+  avatarSize: 50,
+};
+
+export const FONTS = {
+  regular: {
+    fontFamily: 'System',
+    fontWeight: '400' as const,
+  },
+  medium: {
+    fontFamily: 'System',
+    fontWeight: '500' as const,
+  },
+  semiBold: {
+    fontFamily: 'System',
+    fontWeight: '600' as const,
+  },
+  bold: {
+    fontFamily: 'System',
+    fontWeight: '700' as const,
+  },
+  black: {
+    fontFamily: 'System',
+    fontWeight: '900' as const,
+  },
+};
+
+export const ANIMATION = {
+  pulseDuration: 1200,
+  fadeDuration: 300,
+  slideDuration: 400,
+  spring: {
+    damping: 10,
+    stiffness: 100,
+  },
+};
+
+export const SHADOWS = {
+  small: {
+    shadowColor: COLORS.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  medium: {
+    shadowColor: COLORS.black,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  large: {
+    shadowColor: COLORS.black,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    elevation: 10,
+  },
+  glow: {
+    shadowColor: COLORS.primary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 20,
+    elevation: 8,
+  },
+};
