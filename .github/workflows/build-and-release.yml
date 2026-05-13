@@ -43,8 +43,8 @@ jobs:
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee build.log
-          echo "=== Build log (last 30 lines) ==="
-          grep -v -e "Resource missing" -e "Downloading " build.log | tail -30 | while IFS= read -r line; do echo "::error::$line"; done
+          echo "=== Tasks that ran ==="
+          grep "^>" build.log | head -20 || echo "No task output found"
           exit ${PIPESTATUS[0]}
 
       - name: Upload build logs
@@ -53,6 +53,17 @@ jobs:
         with:
           name: build-logs
           path: android/build.log
+
+      - name: Find APK
+        if: always()
+        run: |
+          echo "=== Searching for APK ==="
+          find android -name "*.apk" 2>/dev/null || echo "No APK found"
+          echo "=== Android build output ==="
+          ls -la android/app/build/outputs/ 2>/dev/null || echo "No outputs dir"
+          ls -la android/app/build/outputs/apk/ 2>/dev/null || echo "No apk dir"
+          echo "=== Tasks ==="
+          cd android && ./gradlew tasks --all 2>/dev/null | grep -i "assemble\|apk\|bundle" | head -20 || echo "No tasks grep"
 
       - name: Upload APK
         if: success()
