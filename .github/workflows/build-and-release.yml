@@ -43,6 +43,8 @@ jobs:
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee build.log
+          echo "=== Build log (last 30 lines) ==="
+          grep -v -e "Resource missing" -e "Downloading " build.log | tail -30 | while IFS= read -r line; do echo "::error::$line"; done
           exit ${PIPESTATUS[0]}
 
       - name: Upload build logs
