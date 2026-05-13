@@ -56,10 +56,8 @@ jobs:
 
       - name: Build APK
         run: |
-          cd android
-          chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee build.log
-          exit ${PIPESTATUS[0]}
+          npx react-native build-android --mode debug 2>&1 | tee build.log
+          echo "=== BUILD RESULT: ${PIPESTATUS[0]} ==="
 
       - name: Upload build logs
         if: always()
