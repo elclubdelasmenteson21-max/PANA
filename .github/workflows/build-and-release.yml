@@ -60,7 +60,15 @@ jobs:
 
       - name: Output full log tail
         if: failure()
-        run: tail -100 android/build.log
+        run: |
+          echo "### Gradle Build Failure Log (last 100 lines)" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          tail -100 android/build.log >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "### Error lines" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          grep -n -i "error\|FAILED\|What went wrong\|BUILD FAIL" android/build.log | tail -30 >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
 
       - name: Upload build logs
         if: always()
