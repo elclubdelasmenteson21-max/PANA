@@ -50,12 +50,17 @@ jobs:
           cd android
           gradle assembleDebug --no-daemon --stacktrace --info 2>&1 | tee build.log
           gradle_exit=${PIPESTATUS[0]}
-          echo "=== Gradle exit code: $gradle_exit ==="
+          echo "=== Error summary ==="
+          grep -i "error\|FAILED\|Could not find\|could not resolve\|exception\|What went wrong" build.log | head -20 | while read line; do
+            echo "::error::$line"
+          done
           echo "=== APK output ==="
           ls -la app/build/outputs/apk/debug/ 2>/dev/null || echo "No APK found"
-          echo "=== Error summary ==="
-           grep -i "error\|FAILED\|Could not find\|could not resolve\|exception" build.log | tail -30 || echo "No errors found in log"
           exit $gradle_exit
+
+      - name: Output full log tail
+        if: failure()
+        run: tail -100 android/build.log
 
       - name: Upload build logs
         if: always()
