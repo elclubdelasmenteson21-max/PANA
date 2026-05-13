@@ -38,14 +38,27 @@ jobs:
             fi
           done
 
+      - name: Fix namespaces in library modules
+        run: |
+          for dir in node_modules/*/ node_modules/@*/*/; do
+            manifest="$dir/android/src/main/AndroidManifest.xml"
+            buildGradle="$dir/android/build.gradle"
+            if [ -f "$manifest" ]; then
+              package=$(grep -o 'package="[^"]*"' "$manifest" | head -1 | sed 's/package="//;s/"//')
+              if [ -n "$package" ]; then
+                if [ -f "$buildGradle" ] && ! grep -q "namespace " "$buildGradle"; then
+                  echo "Adding namespace $package to $buildGradle"
+                  sed -i "/android {/a\    namespace '$package'" "$buildGradle"
+                fi
+              fi
+            fi
+          done
+
       - name: Build APK
         run: |
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee build.log
-          echo "====== GRADLE EXIT CODE: ${PIPESTATUS[0]} ======"
-          echo "====== FULL BUILD LOG ======"
-          cat build.log
           exit ${PIPESTATUS[0]}
 
       - name: Upload build logs
@@ -54,16 +67,6 @@ jobs:
         with:
           name: build-logs
           path: android/build.log
-
-      - name: Find APK
-        if: always()
-        run: |
-          echo "=== APK find ==="
-          find . -name "*.apk" -type f 2>/dev/null
-          echo "=== Build output ==="
-          find android/app/build -name "*.apk" -o -name "*.aab" 2>/dev/null
-          find android/app/.cxx -type f 2>/dev/null | head -5 || true
-          find . -name "*.dex" -type f 2>/dev/null | head -5 || true
 
       - name: Upload APK
         if: success()
