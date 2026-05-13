@@ -38,14 +38,8 @@ jobs:
             fi
           done
 
-      - name: Install Gradle
-        run: |
-          curl -sL https://services.gradle.org/distributions/gradle-7.6.1-bin.zip -o /tmp/gradle.zip
-          unzip -q /tmp/gradle.zip -d "$HOME"
-          echo "$HOME/gradle-7.6.1/bin" >> $GITHUB_PATH
-
       - name: Build APK
-        run: cd android && gradle assembleDebug --no-daemon --warning-mode all
+        run: cd android && chmod +x gradlew && ./gradlew assembleDebug --no-daemon --warning-mode all
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
