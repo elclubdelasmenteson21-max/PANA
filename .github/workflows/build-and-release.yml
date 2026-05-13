@@ -54,21 +54,26 @@ jobs:
             fi
           done
 
+      - name: List app tasks
+        continue-on-error: true
+        run: |
+          cd android && chmod +x gradlew && ./gradlew :app:tasks --all 2>&1 | head -80
+
       - name: Build APK
         run: |
-          npx react-native build-android --mode debug 2>&1 | tee build.log
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee build.log
           echo "EXIT: ${PIPESTATUS[0]}"
-          echo "=== FIND APKS ==="
-          find . -name "*.apk" -type f 2>/dev/null
-          echo "=== BUILD DIR ==="
-          ls -la android/app/build/outputs/ 2>/dev/null
+          tail -30 build.log
+          exit ${PIPESTATUS[0]}
 
       - name: Upload build logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: build-logs
-          path: build.log
+          path: android/build.log
 
       - name: Upload APK
         if: success()
