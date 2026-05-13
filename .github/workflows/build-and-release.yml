@@ -62,8 +62,7 @@ jobs:
           ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee build.log
           gradle_exit=${PIPESTATUS[0]}
           echo "=== Gradle exit code: $gradle_exit ==="
-          echo "=== Last 50 lines ==="
-          tail -50 build.log
+          grep -v -e "^\s*$" -e "Resource missing" -e "Downloading" build.log | tail -30 | while IFS= read -r line; do echo "::error::$line"; done
           exit $gradle_exit
 
       - name: Upload build logs
