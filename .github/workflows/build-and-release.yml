@@ -38,12 +38,6 @@ jobs:
             fi
           done
 
-      - name: Install Gradle
-        run: |
-          curl -sL https://services.gradle.org/distributions/gradle-7.6.1-bin.zip -o /tmp/gradle.zip
-          unzip -q -o /tmp/gradle.zip -d "$HOME"
-          echo "$HOME/gradle-7.6.1/bin" >> $GITHUB_PATH
-
       - name: Build APK
         run: |
           export ANDROID_HOME="$ANDROID_SDK_ROOT"
@@ -51,7 +45,8 @@ jobs:
           echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
           ls -la "$ANDROID_SDK_ROOT" 2>/dev/null || echo "SDK not found"
           cd android
-          gradle assembleDebug --no-daemon --stacktrace 2>&1 | tee build.log
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee build.log
           gradle_exit=${PIPESTATUS[0]}
           echo "=== Exit code: $gradle_exit ==="
           echo "=== Last 50 lines of build log ==="
