@@ -30,9 +30,9 @@ jobs:
 
       - name: Install Gradle
         run: |
-          curl -sL https://services.gradle.org/distributions/gradle-8.4-bin.zip -o /tmp/gradle.zip
+          curl -sL https://services.gradle.org/distributions/gradle-7.6.1-bin.zip -o /tmp/gradle.zip
           unzip -q /tmp/gradle.zip -d $HOME
-          echo "$HOME/gradle-8.4/bin" >> $GITHUB_PATH
+          echo "$HOME/gradle-7.6.1/bin" >> $GITHUB_PATH
 
       - name: Build APK
         run: cd android && gradle assembleDebug --no-daemon --warning-mode all

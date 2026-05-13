@@ -28,7 +28,19 @@ allprojects {
     }
 }
 
-subprojects {
+// Patch libraries for Gradle 8.x compatibility
+subprojects { subproject ->
+    // Fix deprecated 'compile' configuration used by some RN libraries
+    subproject.plugins.whenPluginAdded { plugin ->
+        if (plugin.class.name == 'com.android.build.gradle.LibraryPlugin' ||
+            plugin.class.name == 'com.android.build.gradle.AppPlugin') {
+            subproject.android {
+                compileSdkVersion rootProject.ext.compileSdkVersion
+                buildToolsVersion rootProject.ext.buildToolsVersion
+            }
+        }
+    }
+
     afterEvaluate {
         if (it.hasProperty('android')) {
             android {
@@ -39,3 +51,5 @@ subprojects {
         }
     }
 }
+
+
