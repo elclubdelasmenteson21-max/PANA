@@ -55,12 +55,27 @@ jobs:
           done
 
       - name: Build APK
+        id: build
         run: |
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee build.log
-          echo "EXIT: ${PIPESTATUS[0]}"
           exit ${PIPESTATUS[0]}
+
+      - name: Analyze build
+        if: always()
+        run: |
+          echo "=== BUILD LOG ==="
+          head -100 android/build.log
+          echo "=== LAST 50 ==="
+          tail -50 android/build.log
+          echo "=== TASK LINES ==="
+          grep ">" android/build.log || echo "No task lines"
+          echo "=== SEARCH APK ==="
+          find android -name "*.apk" -o -name "*.aab" 2>/dev/null
+          echo "=== BUILD DIR ==="
+          ls -la android/app/build/ 2>/dev/null
+          ls -la android/app/build/outputs/ 2>/dev/null
 
       - name: Upload build logs
         if: always()
@@ -68,52 +83,6 @@ jobs:
         with:
           name: build-logs
           path: android/build.log
-
-      - name: Analyze build output
-        if: always()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const path = require('path');
-            
-            // Read the build log
-            const logPath = path.join(process.env.GITHUB_WORKSPACE, 'android', 'build.log');
-            if (!fs.existsSync(logPath)) {
-              core.error('build.log not found!');
-              return;
-            }
-            
-            const log = fs.readFileSync(logPath, 'utf8');
-            const lines = log.split('\n');
-            
-            // Find important lines
-            const errors = lines.filter(l => 
-              l.includes('ERROR') || 
-              l.includes('FAILED') || 
-              l.includes('What went wrong') ||
-              l.includes('Could not find') ||
-              l.includes('namespace not specified') ||
-              l.includes('BUILD FAILED')
-            );
-            
-            // Last 30 non-empty, non-noise lines
-            const tail = lines.filter(l => 
-              l.trim().length > 0 &&
-              !l.includes('Resource missing') &&
-              !l.includes('Downloading')
-            ).slice(-30);
-            
-            core.summary.addHeading('Build Error Analysis');
-            if (errors.length > 0) {
-              core.summary.addHeading('Error Lines', 3);
-              core.summary.addCodeBlock(errors.slice(0, 20).join('\n'), 'text');
-            }
-            core.summary.addHeading('Last 30 Significant Lines', 3);
-            core.summary.addCodeBlock(tail.join('\n'), 'text');
-            core.summary.addHeading('Task Lines', 3);
-            core.summary.addCodeBlock(lines.filter(l => l.startsWith('>')).join('\n'), 'text');
-            await core.summary.write();
 
       - name: Upload APK
         if: success()
