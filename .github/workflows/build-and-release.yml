@@ -28,8 +28,14 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Fix permissions
-        run: chmod +x android/gradlew
+      - name: Install Gradle
+        run: |
+          curl -sL https://services.gradle.org/distributions/gradle-8.4-bin.zip -o /tmp/gradle.zip
+          unzip -q /tmp/gradle.zip -d /opt
+          echo "/opt/gradle-8.4/bin" >> $GITHUB_PATH
+
+      - name: Generate Wrapper
+        run: cd android && gradle wrapper --gradle-version 8.4
 
       - name: Build APK
         run: cd android && ./gradlew assembleDebug --no-daemon
@@ -39,4 +45,3 @@ jobs:
         with:
           name: PANA-APK
           path: android/app/build/outputs/apk/debug/*.apk
-
