@@ -28,10 +28,20 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Patch libraries for Gradle compatibility
+        run: |
+          # Fix react-native-voice deprecated compile() call
+          if [ -f node_modules/react-native-voice/android/build.gradle ]; then
+            sed -i 's/compile /implementation /g' node_modules/react-native-voice/android/build.gradle
+          fi
+          if [ -f node_modules/@react-native-voice/voice/android/build.gradle ]; then
+            sed -i 's/compile /implementation /g' node_modules/@react-native-voice/voice/android/build.gradle
+          fi
+
       - name: Install Gradle
         run: |
           curl -sL https://services.gradle.org/distributions/gradle-7.6.1-bin.zip -o /tmp/gradle.zip
-          unzip -q /tmp/gradle.zip -d $HOME
+          unzip -q /tmp/gradle.zip -d "$HOME"
           echo "$HOME/gradle-7.6.1/bin" >> $GITHUB_PATH
 
       - name: Build APK
