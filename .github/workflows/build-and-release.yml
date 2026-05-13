@@ -31,14 +31,11 @@ jobs:
       - name: Install Gradle
         run: |
           curl -sL https://services.gradle.org/distributions/gradle-8.4-bin.zip -o /tmp/gradle.zip
-          unzip -q /tmp/gradle.zip -d /opt
-          echo "/opt/gradle-8.4/bin" >> $GITHUB_PATH
-
-      - name: Generate Wrapper
-        run: cd android && gradle wrapper --gradle-version 8.4
+          unzip -q /tmp/gradle.zip -d /usr/local
+          echo "/usr/local/gradle-8.4/bin" >> $GITHUB_PATH
 
       - name: Build APK
-        run: cd android && ./gradlew assembleDebug --no-daemon
+        run: cd android && gradle assembleDebug --no-daemon --warning-mode all
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
