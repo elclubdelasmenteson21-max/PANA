@@ -38,30 +38,31 @@ jobs:
             fi
           done
 
-      - name: Debug environment
+      - name: Install Gradle
         run: |
-          echo "=== Java version ==="
-          java -version 2>&1
-          echo "=== Gradle wrapper ==="
-          ls -la android/gradlew
-          file android/gradlew
-          echo "=== Gradle wrapper properties ==="
-          cat android/gradle/wrapper/gradle-wrapper.properties
-          echo "=== Test gradlew ==="
-          cd android && chmod +x gradlew && ./gradlew --version 2>&1 || echo "GRADLEW FAILED"
+          curl -sL https://services.gradle.org/distributions/gradle-7.6.1-bin.zip -o /tmp/gradle.zip
+          unzip -q -o /tmp/gradle.zip -d "$HOME"
+          echo "$HOME/gradle-7.6.1/bin" >> $GITHUB_PATH
 
       - name: Build APK
         run: |
+          export ANDROID_HOME="$ANDROID_SDK_ROOT"
           cd android
-          ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee ../build.log
-          exit ${PIPESTATUS[0]}
+          gradle assembleDebug --no-daemon --stacktrace --info 2>&1 | tee build.log
+          gradle_exit=${PIPESTATUS[0]}
+          echo "=== Gradle exit code: $gradle_exit ==="
+          echo "=== APK output ==="
+          ls -la app/build/outputs/apk/debug/ 2>/dev/null || echo "No APK found"
+          echo "=== Error summary ==="
+           grep -i "error\|FAILED\|Could not find\|could not resolve\|exception" build.log | tail -30 || echo "No errors found in log"
+          exit $gradle_exit
 
       - name: Upload build logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: build-logs
-          path: build.log
+          path: android/build.log
 
       - name: Upload APK
         if: success()
