@@ -60,22 +60,18 @@ jobs:
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee build.log
+          echo "=== EXIT CODE: ${PIPESTATUS[0]} ==="
           exit ${PIPESTATUS[0]}
 
-      - name: Analyze build
+      - name: Show build log
         if: always()
         run: |
-          echo "=== BUILD LOG ==="
-          head -100 android/build.log
-          echo "=== LAST 50 ==="
-          tail -50 android/build.log
-          echo "=== TASK LINES ==="
-          grep ">" android/build.log || echo "No task lines"
-          echo "=== SEARCH APK ==="
-          find android -name "*.apk" -o -name "*.aab" 2>/dev/null
-          echo "=== BUILD DIR ==="
-          ls -la android/app/build/ 2>/dev/null
-          ls -la android/app/build/outputs/ 2>/dev/null
+          echo "=== FULL BUILD LOG ==="
+          cat android/build.log
+          echo "=== FIND APK ==="
+          find . -name "*.apk" -type f 2>/dev/null
+          echo "=== BUILD OUTPUT ==="
+          find android/app/build -maxdepth 3 -type d 2>/dev/null
 
       - name: Upload build logs
         if: always()
