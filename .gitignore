@@ -45,3 +45,7 @@ coverage/
 # Temp
 tmp/
 temp/
+
+# Android local
+android/local.properties
+android/app/debug.keystore

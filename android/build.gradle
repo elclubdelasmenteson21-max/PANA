@@ -2,8 +2,8 @@ buildscript {
     ext {
         buildToolsVersion = "34.0.0"
         minSdkVersion = 23
-        compileSdkVersion = 34
-        targetSdkVersion = 34
+        compileSdkVersion = 35
+        targetSdkVersion = 35
         ndkVersion = "25.1.8937393"
         kotlinVersion = "1.8.0"
     }
@@ -16,6 +16,10 @@ buildscript {
         classpath("com.google.gms:google-services:4.3.15")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
     }
+}
+
+plugins {
+    id("com.facebook.react.rootproject")
 }
 
 allprojects {
@@ -34,6 +38,7 @@ subprojects { subproject ->
         resolutionStrategy {
             force 'com.facebook.react:react-android:0.73.4'
             force 'com.facebook.react:hermes-android:0.73.4'
+
             dependencySubstitution {
                 substitute module('com.facebook.react:react-native') using module('com.facebook.react:react-android:0.73.4')
             }
@@ -47,19 +52,22 @@ subprojects { subproject ->
             subproject.android {
                 compileSdkVersion rootProject.ext.compileSdkVersion
                 buildToolsVersion rootProject.ext.buildToolsVersion
-            }
-        }
-    }
-
-    afterEvaluate {
-        if (it.hasProperty('android')) {
-            android {
                 buildFeatures {
                     buildConfig = true
+                }
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_17
+                    targetCompatibility JavaVersion.VERSION_17
+                }
+                if (plugin.class.name == 'com.android.build.gradle.AppPlugin') {
+                    aaptOptions {
+                        additionalParameters "--no-version-vectors"
+                    }
                 }
             }
         }
     }
+
 }
 
 
