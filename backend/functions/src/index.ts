@@ -40,6 +40,7 @@ TIPOS DE TRANSACCIÓN: Venta, Compra, Intercambio, Importación, Exportación, P
       const OpenAI = require('openai');
       const openai = new OpenAI({
         apiKey: process.env.OPENAI_API_KEY,
+        baseURL: 'https://api.groq.com/openai/v1',
       });
 
       const messages = [
@@ -49,7 +50,7 @@ TIPOS DE TRANSACCIÓN: Venta, Compra, Intercambio, Importación, Exportación, P
       ];
 
       const completion = await openai.chat.completions.create({
-        model: 'gpt-4',
+        model: 'llama-3.1-70b-versatile',
         messages,
         temperature: 0.85,
         max_tokens: 300,
