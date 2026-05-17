@@ -10,7 +10,7 @@
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "clean": "cd android && gradlew clean && cd .. && npx react-native start --reset-cache",
-    "build": "cd backend/server && npm install && npx tsc",
+    "build": "npm install --prefix backend/server && npx tsc --project backend/server/tsconfig.json",
     "postinstall": "patch-package"
   },
   "dependencies": {
