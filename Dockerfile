@@ -1,20 +1,12 @@
-FROM node:18-alpine AS builder
+FROM node:18-slim
 
-WORKDIR /app
+WORKDIR /app/backend/server
 
-COPY backend/server/package*.json ./backend/server/
-RUN cd backend/server && npm install
+COPY backend/server/package*.json ./
+RUN npm install
 
-COPY backend/server/tsconfig.json ./backend/server/
-COPY backend/server/src/ ./backend/server/src/
-RUN cd backend/server && npx tsc
-
-FROM node:18-alpine AS runner
-
-WORKDIR /app
-
-COPY --from=builder /app/backend/server/dist ./dist
-COPY --from=builder /app/backend/server/node_modules ./node_modules
+COPY backend/server/ ./
+RUN npx tsc
 
 EXPOSE 3001
 
