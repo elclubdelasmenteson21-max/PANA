@@ -1,1 +1,1 @@
-web: cd backend/server && node dist/index.js
+web: bash start.sh
