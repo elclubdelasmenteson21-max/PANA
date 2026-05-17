@@ -1,0 +1,12 @@
+{
+  "name": "pana-backend",
+  "version": "1.0.0-beta.1",
+  "private": true,
+  "scripts": {
+    "build": "cd server && npm install && npx tsc",
+    "start": "cd server && node dist/index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
