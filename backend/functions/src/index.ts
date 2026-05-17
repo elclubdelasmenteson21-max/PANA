@@ -9,9 +9,11 @@ const storage = admin.storage();
 // ============================================================
 // FUNCIÓN: Procesar mensaje AI usando OpenAI GPT
 // ============================================================
-export const processAIMessage = onCall(
-  { secrets: ['OPENAI_API_KEY'] },
-  async (request) => {
+const apiKey = (): string => {
+  return functions.config().openai?.key || process.env.OPENAI_API_KEY || '';
+};
+
+export const processAIMessage = onCall(async (request) => {
     const { message, conversationHistory } = request.data;
 
     if (!message) {
@@ -39,7 +41,7 @@ TIPOS DE TRANSACCIÓN: Venta, Compra, Intercambio, Importación, Exportación, P
     try {
       const OpenAI = require('openai');
       const openai = new OpenAI({
-        apiKey: process.env.OPENAI_API_KEY,
+        apiKey: apiKey(),
         baseURL: 'https://api.groq.com/openai/v1',
       });
 
@@ -75,7 +77,7 @@ TIPOS DE TRANSACCIÓN: Venta, Compra, Intercambio, Importación, Exportación, P
 // FUNCIÓN: Procesar audio a texto (Speech-to-Text)
 // ============================================================
 export const transcribeAudio = onCall(async (request) => {
-  const { audioBase64, languageCode = 'es-VE' } = request.data;
+  const { audioBase64 } = request.data;
 
   if (!audioBase64) {
     throw new HttpsError('invalid-argument', 'Audio es requerido');
@@ -117,7 +119,7 @@ export const transcribeAudio = onCall(async (request) => {
 // FUNCIÓN: Texto a voz (Text-to-Speech)
 // ============================================================
 export const synthesizeSpeech = onCall(async (request) => {
-  const { text, languageCode = 'es-VE' } = request.data;
+  const { text } = request.data;
 
   if (!text) {
     throw new HttpsError('invalid-argument', 'Texto es requerido');

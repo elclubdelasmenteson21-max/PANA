@@ -1,6 +1,6 @@
-FROM node:18-slim
+FROM node:18-alpine
 
-WORKDIR /app/backend/server
+WORKDIR /app
 
 COPY backend/server/package*.json ./
 RUN npm install
