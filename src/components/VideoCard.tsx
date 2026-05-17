@@ -9,10 +9,10 @@ import {
   Platform,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import Video from 'react-native-video';
+import RNVideo from 'react-native-video';
 
 import { COLORS, SIZES, SHADOWS } from '@constants/theme';
-import { Video as VideoType } from '@types/index';
+import { Video as VideoType } from '@apptypes/index';
 import { VideoService } from '@services/firebase';
 
 const { width } = Dimensions.get('window');
@@ -28,7 +28,7 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, showFullDetails = false })
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(video.likes || 0);
-  const videoRef = useRef<Video>(null);
+  const videoRef = useRef<any>(null);
 
   const handlePlayPause = () => {
     setIsPlaying(!isPlaying);
@@ -84,7 +84,7 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, showFullDetails = false })
           activeOpacity={0.9}
         >
           {isPlaying ? (
-            <Video
+            <RNVideo
               ref={videoRef}
               source={{ uri: video.videoURL }}
               style={styles.videoPlayer}

@@ -4,6 +4,18 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      release:
+        description: 'Create GitHub Release'
+        type: boolean
+        default: false
+      build_type:
+        description: 'Build type'
+        type: choice
+        default: 'debug'
+        options:
+          - debug
+          - release
 
 jobs:
   build:
@@ -15,9 +27,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18
-
-      - name: Install dependencies
-        run: npm install
+          cache: 'npm'
 
       - name: Setup JDK 17
         uses: actions/setup-java@v4
@@ -28,29 +38,18 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Patch libraries for Gradle compatibility
+      - name: Install dependencies
+        run: |
+          npm ci
+          npx patch-package
+
+      - name: Fix deprecated Gradle configs in legacy libraries
         run: |
           for f in node_modules/*/android/build.gradle node_modules/@*/*/android/build.gradle; do
             if [ -f "$f" ]; then
-              sed -i 's/compile /implementation /g' "$f"
-              sed -i 's/testCompile /testImplementation /g' "$f"
-              sed -i 's/androidTestCompile /androidTestImplementation /g' "$f"
-            fi
-          done
-
-      - name: Fix namespaces in library modules
-        run: |
-          for dir in node_modules/*/ node_modules/@*/*/; do
-            manifest="$dir/android/src/main/AndroidManifest.xml"
-            buildGradle="$dir/android/build.gradle"
-            if [ -f "$manifest" ]; then
-              package=$(grep -o 'package="[^"]*"' "$manifest" | head -1 | sed 's/package="//;s/"//')
-              if [ -n "$package" ]; then
-                if [ -f "$buildGradle" ] && ! grep -q "namespace " "$buildGradle"; then
-                  echo "Adding namespace $package to $buildGradle"
-                  sed -i "/android {/a\    namespace '$package'" "$buildGradle"
-                fi
-              fi
+              sed -i 's/compile /implementation /g' "$f" 2>/dev/null || true
+              sed -i 's/testCompile /testImplementation /g' "$f" 2>/dev/null || true
+              sed -i 's/androidTestCompile /androidTestImplementation /g' "$f" 2>/dev/null || true
             fi
           done
 
@@ -59,19 +58,18 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee build.log
-          echo "=== EXIT CODE: ${PIPESTATUS[0]} ==="
+          ./gradlew assemble${{ github.event.inputs.build_type == 'release' && 'Release' || 'Debug' }} --no-daemon 2>&1 | tee build.log
+          echo "EXIT_CODE=${PIPESTATUS[0]}" >> $GITHUB_OUTPUT
           exit ${PIPESTATUS[0]}
 
-      - name: Show build log
-        if: always()
+      - name: Find APK
+        if: success()
+        id: find_apk
         run: |
-          echo "=== FULL BUILD LOG ==="
-          cat android/build.log
-          echo "=== FIND APK ==="
-          find . -name "*.apk" -type f 2>/dev/null
-          echo "=== BUILD OUTPUT ==="
-          find android/app/build -maxdepth 3 -type d 2>/dev/null
+          APK=$(find android/app/build/outputs/apk -name "*.apk" -type f 2>/dev/null | head -1)
+          echo "APK_PATH=$APK" >> $GITHUB_OUTPUT
+          echo "APK found: $APK"
+          ls -la "$APK"
 
       - name: Upload build logs
         if: always()
@@ -84,5 +82,18 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: PANA-APK
-          path: android/app/build/outputs/apk/debug/*.apk
+          name: PANA-APK-${{ github.event.inputs.build_type || 'debug' }}
+          path: android/app/build/outputs/apk/**/*.apk
+
+      - name: Create GitHub Release
+        if: success() && (github.event.inputs.release == 'true' || startsWith(github.ref, 'refs/tags/'))
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          APK="${{ steps.find_apk.outputs.APK_PATH }}"
+          if [ -z "$APK" ]; then exit 1; fi
+          TAG="v$(date +%Y%m%d)-${{ github.run_number }}"
+          gh release create "$TAG" \
+            --title "PANA Build ${{ github.run_number }}" \
+            --notes "Automated build from commit ${{ github.sha }}" \
+            "$APK#PANA-${{ github.event.inputs.build_type || 'debug' }}.apk"

@@ -1,7 +1,6 @@
 module.exports = {
   presets: ['module:@react-native/babel-preset'],
   plugins: [
-    'react-native-reanimated/plugin',
     [
       'module:react-native-dotenv',
       {
@@ -22,7 +21,7 @@ module.exports = {
           '@screens': './src/screens',
           '@services': './src/services',
           '@constants': './src/constants',
-          '@types': './src/types',
+          '@apptypes': './src/types',
           '@context': './src/context',
           '@navigation': './src/navigation',
         },

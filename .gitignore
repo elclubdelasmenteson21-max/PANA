@@ -49,3 +49,17 @@ temp/
 # Android local
 android/local.properties
 android/app/debug.keystore
+android/app/release.keystore
+android/app/*.keystore
+
+# Build artifacts
+release/
+*.apk
+*.idsig
+
+# Test files
+test_babel*.js
+test_splash.js
+
+# Dev utilities
+serve_apk.js

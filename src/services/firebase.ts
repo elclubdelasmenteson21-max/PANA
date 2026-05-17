@@ -1,25 +1,8 @@
-import firebase from '@react-native-firebase/app';
+import '@react-native-firebase/app';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import storage from '@react-native-firebase/storage';
 import functions from '@react-native-firebase/functions';
-
-const firebaseConfig = {
-  apiKey: process.env.FIREBASE_API_KEY,
-  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.FIREBASE_PROJECT_ID,
-  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.FIREBASE_APP_ID,
-};
-
-let app: firebase.FirebaseApp;
-
-try {
-  app = firebase.initializeApp(firebaseConfig);
-} catch (error) {
-  app = firebase.app();
-}
 
 export const FIREBASE_AUTH = auth;
 export const FIREBASE_STORE = firestore;
@@ -27,7 +10,6 @@ export const FIREBASE_STORAGE = storage;
 export const FIREBASE_FUNCTIONS = functions;
 
 export const db = firestore();
-export const rtdb = firebase.database?.();
 
 export const AuthService = {
   register: async (email: string, password: string, displayName: string) => {
@@ -200,4 +182,4 @@ export const SearchService = {
   },
 };
 
-export default firebase;
+

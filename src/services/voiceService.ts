@@ -1,8 +1,9 @@
-import Voice, {
+import Voice from 'react-native-voice';
+import type {
   SpeechRecognizedEvent,
   SpeechErrorEvent,
   SpeechResultsEvent,
-} from '@react-native-voice/voice';
+} from 'react-native-voice';
 import Tts from 'react-native-tts';
 
 type VoiceCallback = (text: string) => void;
@@ -101,7 +102,6 @@ class VoiceService {
     try {
       await Voice.stop();
     } catch (error) {
-      // Ignore errors on stop
     } finally {
       this.isListening = false;
       this.onListeningChange?.(false);

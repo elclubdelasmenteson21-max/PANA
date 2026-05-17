@@ -1,0 +1,10 @@
+{
+  "react-native": {
+    "android": {
+      "googleServicesFile": "./android/app/google-services.json"
+    }
+  },
+  "appDistribution": {
+    "app": "1:797115189959:android:fbfd092f0f3fd4f6e9cce2"
+  }
+}

@@ -16,7 +16,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { COLORS, SIZES } from '@constants/theme';
 import { STRINGS } from '@constants/strings';
-import { AIMessage, AICommand } from '@types/index';
+import { AIMessage, AICommand } from '@apptypes/index';
 import aiService from '@services/aiService';
 import voiceService from '@services/voiceService';
 import SplashScreen from './SplashScreen';

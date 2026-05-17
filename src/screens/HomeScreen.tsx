@@ -14,7 +14,7 @@ import {
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 import { COLORS, SIZES } from '@constants/theme';
-import { Video } from '@types/index';
+import { Video } from '@apptypes/index';
 import { VideoService } from '@services/firebase';
 import VideoCard from '@components/VideoCard';
 

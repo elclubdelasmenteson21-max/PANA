@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "000000000000",
+    "project_number": "797115189959",
     "project_id": "pana-marketplace",
-    "storage_bucket": "pana-marketplace.appspot.com"
+    "storage_bucket": "pana-marketplace.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:000000000000:android:0000000000000000",
+        "mobilesdk_app_id": "1:797115189959:android:fbfd092f0f3fd4f6e9cce2",
         "android_client_info": {
           "package_name": "com.pana.marketplace"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyPlaceholderKeyForBuildOnly"
+          "current_key": "AIzaSyAytO_mbNsVsTJsz9zg4Mt_c0xqgZyc7fc"
         }
       ],
       "services": {

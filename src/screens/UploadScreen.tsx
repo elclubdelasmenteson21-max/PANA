@@ -19,7 +19,7 @@ import Video from 'react-native-video';
 import { COLORS, SIZES } from '@constants/theme';
 import { useAuth } from '@context/AuthContext';
 import { VideoService } from '@services/firebase';
-import { Category, TransactionType } from '@types/index';
+import { Category, TransactionType } from '@apptypes/index';
 
 const CATEGORIES: Category[] = [
   'Tecnologia', 'Hogar', 'Moda', 'Alimentos', 'Bebidas',
