@@ -53,6 +53,22 @@ jobs:
             fi
           done
 
+      - name: Generate debug keystore (for debug builds)
+        if: github.event.inputs.build_type != 'release'
+        run: |
+          keytool -genkey -v -keystore android/app/debug.keystore \
+            -alias androiddebugkey -storepass android -keypass android \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -dname "CN=Android Debug, O=Android, C=US"
+
+      - name: Generate release keystore (for release builds)
+        if: github.event.inputs.build_type == 'release'
+        run: |
+          keytool -genkey -v -keystore android/app/release.keystore \
+            -alias pana-release-key -storepass pana1234 -keypass pana1234 \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -dname "CN=PANA, OU=PANA, O=PANA, L=Caracas, ST=Distrito Capital, C=VE"
+
       - name: Build APK
         id: build
         run: |
