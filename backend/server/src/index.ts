@@ -1,6 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import * as admin from 'firebase-admin';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as os from 'os';
 
 const app = express();
 app.use(cors());
@@ -11,7 +14,14 @@ let storage: admin.storage.Storage | null = null;
 let auth: admin.auth.Auth | null = null;
 
 try {
-  if (process.env.GOOGLE_APPLICATION_CREDENTIALS || process.env.FIREBASE_SERVICE_ACCOUNT) {
+  const firebaseServiceAccount = process.env.FIREBASE_SERVICE_ACCOUNT;
+  if (firebaseServiceAccount) {
+    const tmpFile = path.join(os.tmpdir(), `firebase-sa-${Date.now()}.json`);
+    fs.writeFileSync(tmpFile, firebaseServiceAccount);
+    process.env.GOOGLE_APPLICATION_CREDENTIALS = tmpFile;
+  }
+
+  if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
     admin.initializeApp({
       credential: admin.credential.applicationDefault(),
     });
