@@ -1,7 +1,7 @@
 import { AIMessage, AICommand } from '@apptypes/index';
 import { STRINGS } from '@constants/strings';
 import { API_BASE_URL } from '../config';
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 interface AIResponse {
   text: string;
@@ -51,7 +51,7 @@ Debes detectar la intención del usuario y responder de manera natural.`;
 
     try {
       const userEntry: AIMessage = {
-        id: uuid.v4(),
+        id: uuidv4(),
         role: 'user',
         content: userMessage,
         timestamp: new Date(),
@@ -97,7 +97,7 @@ Debes detectar la intención del usuario y responder de manera natural.`;
       command = this.detectCommand(userMessage, aiText);
 
       const assistantEntry: AIMessage = {
-        id: uuid.v4(),
+        id: uuidv4(),
         role: 'assistant',
         content: aiText,
         timestamp: new Date(),
