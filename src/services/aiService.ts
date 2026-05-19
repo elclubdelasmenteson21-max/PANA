@@ -1,9 +1,7 @@
 import { AIMessage, AICommand } from '@apptypes/index';
 import { STRINGS } from '@constants/strings';
+import { API_BASE_URL } from '../config';
 import uuid from 'uuid';
-
-const API_URL = 'https://api.openai.com/v1/chat/completions';
-const API_KEY = process.env.OPENAI_API_KEY;
 
 interface AIResponse {
   text: string;
@@ -73,26 +71,26 @@ Debes detectar la intención del usuario y responder de manera natural.`;
       let aiText: string;
       let command: AICommand | undefined;
 
-      if (API_KEY && API_KEY !== 'your_openai_api_key') {
-        const response = await fetch(API_URL, {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/ai/message`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${API_KEY}`,
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            model: 'gpt-4',
-            messages,
-            temperature: 0.85,
-            max_tokens: 250,
-            presence_penalty: 0.6,
-            frequency_penalty: 0.3,
+            message: userMessage,
+            conversationHistory: this.conversationHistory.slice(-20).map((msg) => ({
+              role: msg.role,
+              content: msg.content,
+            })),
           }),
         });
 
-        const data = await response.json();
-        aiText = data.choices?.[0]?.message?.content || this.getFallbackResponse(userMessage);
-      } else {
+        if (response.ok) {
+          const data = await response.json();
+          aiText = data.text || this.getFallbackResponse(userMessage);
+        } else {
+          aiText = this.getFallbackResponse(userMessage);
+        }
+      } catch {
         aiText = this.getFallbackResponse(userMessage);
       }
 
