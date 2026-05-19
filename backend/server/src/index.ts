@@ -107,9 +107,9 @@ TIPOS DE TRANSACCIÓN: Venta, Compra, Intercambio, Importación, Exportación, P
       text: aiResponse,
       timestamp: new Date().toISOString(),
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error:', error);
-    res.status(500).json({ error: 'Error procesando el mensaje' });
+    res.status(500).json({ error: 'Error procesando el mensaje', details: error.message || String(error) });
   }
 });
 
