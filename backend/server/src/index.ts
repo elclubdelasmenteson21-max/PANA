@@ -40,8 +40,6 @@ try {
 
 const PORT = process.env.PORT || 3001;
 
-const apiKey = (): string => process.env.OPENAI_API_KEY || '';
-
 function requireAuth(req: express.Request): string | never {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -80,28 +78,35 @@ CATEGORÍAS: Tecnología, Hogar, Moda, Alimentos, Bebidas, Automotriz, Industria
 
 TIPOS DE TRANSACCIÓN: Venta, Compra, Intercambio, Importación, Exportación, Producción, Distribución`;
 
-    const OpenAI = require('openai');
-    const openai = new OpenAI({
-      apiKey: apiKey(),
-      baseURL: 'https://api.groq.com/openai/v1',
-    });
-
     const messages = [
       { role: 'system', content: systemPrompt },
       ...(conversationHistory || []).slice(-20),
       { role: 'user', content: message },
     ];
 
-    const completion = await openai.chat.completions.create({
-      model: 'llama-3.1-70b-versatile',
-      messages,
-      temperature: 0.85,
-      max_tokens: 300,
-      presence_penalty: 0.6,
-      frequency_penalty: 0.3,
+    const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY || ''}`,
+      },
+      body: JSON.stringify({
+        model: 'llama-3.1-70b-versatile',
+        messages,
+        temperature: 0.85,
+        max_tokens: 300,
+        presence_penalty: 0.6,
+        frequency_penalty: 0.3,
+      }),
     });
 
-    const aiResponse = completion.choices[0]?.message?.content || '¡Epa pana! No entendí bien, ¿puedes repetirlo?';
+    if (!groqRes.ok) {
+      const errText = await groqRes.text();
+      throw new Error(`Groq API error ${groqRes.status}: ${errText}`);
+    }
+
+    const groqData = await groqRes.json();
+    const aiResponse = groqData.choices?.[0]?.message?.content || '¡Epa pana! No entendí bien, ¿puedes repetirlo?';
 
     res.json({
       text: aiResponse,
