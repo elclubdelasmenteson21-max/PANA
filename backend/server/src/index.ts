@@ -91,7 +91,7 @@ TIPOS DE TRANSACCIÓN: Venta, Compra, Intercambio, Importación, Exportación, P
         Authorization: `Bearer ${process.env.OPENAI_API_KEY || ''}`,
       },
       body: JSON.stringify({
-        model: 'llama-3.1-70b-versatile',
+        model: 'llama-3.3-70b-versatile',
         messages,
         temperature: 0.85,
         max_tokens: 300,
