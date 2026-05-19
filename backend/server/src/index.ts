@@ -9,9 +9,10 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
-let db: admin.firestore.Firestore | null = null;
-let storage: admin.storage.Storage | null = null;
-let auth: admin.auth.Auth | null = null;
+let _firebaseReady = false;
+let db: admin.firestore.Firestore = null as unknown as admin.firestore.Firestore;
+let storage: admin.storage.Storage = null as unknown as admin.storage.Storage;
+let auth: admin.auth.Auth = null as unknown as admin.auth.Auth;
 
 try {
   const firebaseServiceAccount = process.env.FIREBASE_SERVICE_ACCOUNT;
@@ -28,6 +29,7 @@ try {
     db = admin.firestore();
     storage = admin.storage();
     auth = admin.auth();
+    _firebaseReady = true;
     console.log('Firebase Admin initialized');
   } else {
     console.warn('Firebase Admin not initialized - no credentials found');
@@ -49,7 +51,7 @@ function requireAuth(req: express.Request): string | never {
 }
 
 async function verifyToken(token: string): Promise<admin.auth.DecodedIdToken> {
-  if (!auth) throw new Error('Firebase Auth no disponible');
+  if (!_firebaseReady) throw new Error('Firebase Auth no disponible');
   return await auth.verifyIdToken(token);
 }
 
@@ -320,7 +322,7 @@ app.delete('/api/videos/:videoId', async (req, res) => {
 });
 
 app.get('/health', (_req, res) => {
-  res.json({ ok: true, firebase: !!auth, timestamp: new Date().toISOString() });
+  res.json({ ok: true, firebase: _firebaseReady, timestamp: new Date().toISOString() });
 });
 
 app.listen(PORT, () => {
