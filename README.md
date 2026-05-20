@@ -1,201 +1,97 @@
-# PANA - Tu Mercado con Inteligencia Artificial
+This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
-**Version:** 1.0.0 Beta  
-**Desarrollador:** Alvaro Tabata  
-**Tagline:** ¡AQUI HAY PANA PA' RATO!
+# Getting Started
 
-## Descripción
+> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
 
-PANA es una aplicación Android controlada por Inteligencia Artificial para negocios B2B y B2C en Venezuela. Los usuarios pueden publicar videos de máximo 60 segundos sobre lo que venden, producen, comercializan, importan o exportan.
+## Step 1: Start Metro
 
-### Diferenciadores clave
-- **Control por IA:** Interfaz controlada por voz y texto con IA generativa
-- **Solo videos:** Publicaciones únicamente en formato video (60s máx)
-- **Cultura venezolana:** IA responde en español venezolano
-- **Nube:** Videos guardados en la nube, acceso desde galería personal
-- **Gratuito:** Versión beta completamente gratis
+First, you will need to run **Metro**, the JavaScript build tool for React Native.
 
-## Stack Tecnológico
+To start the Metro dev server, run the following command from the root of your React Native project:
 
-### Frontend
-- **Framework:** React Native 0.73 + TypeScript
-- **Navegación:** React Navigation (Stack + Bottom Tabs)
-- **Animaciones:** React Native Reanimated
-- **Video:** react-native-video + react-native-image-picker
-- **Voz:** react-native-voice (STT) + react-native-tts (TTS)
-- **Estado:** Zustand + React Context
-- **Estilos:** StyleSheet + LinearGradient
+```sh
+# Using npm
+npm start
 
-### Backend
-- **Plataforma:** Firebase (Auth, Firestore, Storage, Functions)
-- **Cloud Functions:** Node.js 18 + TypeScript
-- **AI:** OpenAI GPT-4 + Google Cloud Speech/TTS
-- **Base de datos:** Firestore (NoSQL) + índices compuestos
-
-### Servicios Externos
-- OpenAI GPT-4 (IA conversacional venezolana)
-- Google Cloud Speech-to-Text (voz a texto)
-- Google Cloud Text-to-Speech (texto a voz)
-- Firebase Storage (videos en la nube)
-
-## Estructura del Proyecto
-
-```
-PANA/
-├── src/
-│   ├── screens/          # Pantallas de la app
-│   │   ├── SplashScreen.tsx    # Pantalla líquida con aro pulsante
-│   │   ├── AIScreen.tsx        # Interfaz principal de IA
-│   │   ├── LoginScreen.tsx     # Inicio de sesión
-│   │   ├── RegisterScreen.tsx  # Registro
-│   │   ├── HomeScreen.tsx      # Feed de videos
-│   │   ├── UploadScreen.tsx    # Subir video
-│   │   ├── GalleryScreen.tsx   # Galería personal
-│   │   └── ProfileScreen.tsx   # Perfil de usuario
-│   ├── components/       # Componentes reutilizables
-│   │   └── VideoCard.tsx       # Tarjeta de video
-│   ├── services/         # Servicios y APIs
-│   │   ├── firebase.ts         # Firebase CRUD
-│   │   ├── aiService.ts        # IA conversacional
-│   │   └── voiceService.ts     # Voz STT/TTS
-│   ├── navigation/       # Configuración de navegación
-│   │   └── AppNavigator.tsx
-│   ├── context/          # Contextos (Auth)
-│   │   └── AuthContext.tsx
-│   ├── types/            # Tipos TypeScript
-│   │   └── index.ts
-│   └── constants/        # Temas y textos
-│       ├── theme.ts            # Colores, tamaños, animaciones
-│       └── strings.ts          # Textos de la app
-├── backend/
-│   ├── functions/        # Firebase Cloud Functions
-│   │   └── src/
-│   │       └── index.ts        # Todas las cloud functions
-│   ├── firestore.rules         # Reglas de seguridad
-│   ├── storage.rules           # Reglas de storage
-│   └── firestore.indexes.json  # Índices de Firestore
-├── App.tsx               # Entry point
-├── index.js              # Registro de app
-├── package.json          # Dependencias
-└── tsconfig.json         # Config TypeScript
+# OR using Yarn
+yarn start
 ```
 
-## Instalación
+## Step 2: Build and run your app
 
-### Prerrequisitos
-- Node.js >= 18
-- React Native CLI
-- Android Studio (para Android)
-- Firebase CLI (`npm install -g firebase-tools`)
-- Cuenta de OpenAI (para IA)
-- Cuenta de Google Cloud (para voz)
+With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
 
-### Pasos
+### Android
 
-```bash
-# 1. Clonar e instalar dependencias
-cd PANA
-npm install
+```sh
+# Using npm
+npm run android
 
-# 2. Configurar variables de entorno
-cp .env.example .env
-# Editar .env con tus keys de Firebase, OpenAI y Google Cloud
-
-# 3. Configurar Firebase
-firebase login
-firebase init
-# Seleccionar: Firestore, Functions, Storage, Emulators
-
-# 4. Desplegar Cloud Functions (cuando esté listo)
-cd backend/functions
-npm install
-npm run build
-cd ../..
-firebase deploy --only functions
-
-# 5. Ejecutar en Android
-npx react-native run-android
+# OR using Yarn
+yarn android
 ```
 
-### Para desarrollo con emuladores Firebase
+### iOS
 
-```bash
-# Terminal 1: Iniciar app React Native
-npx react-native start
+For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
 
-# Terminal 2: Iniciar emuladores Firebase
-cd backend
-firebase emulators:start
+The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+
+```sh
+bundle install
 ```
 
-## Configuración de Firebase
+Then, and every time you update your native dependencies, run:
 
-### Colecciones en Firestore
-
-```
-users/{userId}
-  ├── uid: string
-  ├── email: string
-  ├── displayName: string
-  ├── photoURL: string?
-  ├── isBusiness: boolean
-  ├── businessType: "B2B" | "B2C" | "AMBOS"
-  ├── followersCount: number
-  └── followingCount: number
-
-videos/{videoId}
-  ├── id: string
-  ├── userId: string
-  ├── title: string
-  ├── description: string
-  ├── videoURL: string
-  ├── thumbnailURL: string
-  ├── category: string
-  ├── transactionType: string
-  ├── price: number?
-  ├── currency: "Bs" | "USD" | "EUR"
-  ├── location: string
-  ├── views: number
-  ├── likes: number
-  ├── isActive: boolean
-  ├── createdAt: timestamp
-  └── expiresAt: timestamp?
+```sh
+bundle exec pod install
 ```
 
-## Funcionalidades por Pantalla
+For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
 
-### 🎯 Splash Screen / Pantalla de Inicio
-- Fondo líquido negro intenso con animación ondulante
-- Aro circular naranja intenso palpitando (efecto corazón)
-- Texto "PANA" en el centro, palpita sincronizado
-- Al pulsar: activa la IA con saludo venezolano
+```sh
+# Using npm
+npm run ios
 
-### 🤖 AI Screen (Pantalla principal)
-- Chat con IA que responde en venezolano
-- Entrada por TEXTO y por VOZ
-- La IA detecta intenciones: publicar, buscar, galería, perfil
-- Comandos de voz activan navegación automática
+# OR using Yarn
+yarn ios
+```
 
-### 📹 Upload Screen
-- Grabar video (cámara) o seleccionar de galería
-- Validación: máximo 60 segundos
-- Formulario: título, descripción, categoría, tipo de transacción
-- Precio en Bs, USD o EUR
+If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
 
-### 🏠 Home Screen
-- Feed de videos con scroll infinito
-- Filtros por categoría
-- Tarjetas de video con reproducción, likes, vistas
+This is one way to run your app — you can also build it directly from Android Studio or Xcode.
 
-### 🖼️ Gallery Screen
-- Galería personal del usuario (vista grid/lista)
-- Todos los videos del usuario almacenados en la nube
-- Acceso permanente a las publicaciones
+## Step 3: Modify your app
 
-## Licencia
+Now that you have successfully run the app, let's make changes!
 
-Beta - Todos los derechos reservados © 2024 Alvaro Tabata
+Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
 
----
+When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
 
-**¡AQUI HAY PANA PA' RATO!**
+- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
+- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+
+## Congratulations! :tada:
+
+You've successfully run and modified your React Native App. :partying_face:
+
+### Now what?
+
+- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
+- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+
+# Troubleshooting
+
+If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+
+# Learn More
+
+To learn more about React Native, take a look at the following resources:
+
+- [React Native Website](https://reactnative.dev) - learn more about React Native.
+- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
+- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
+- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
+- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.

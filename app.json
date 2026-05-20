@@ -1,25 +1,4 @@
 {
   "name": "PANA",
-  "displayName": "PANA - Tu Mercado IA",
-  "expo": {
-    "name": "PANA",
-    "slug": "pana-marketplace",
-    "version": "1.0.0-beta.1",
-    "orientation": "portrait",
-    "icon": "./android/app/src/main/res/mipmap-hdpi/ic_launcher.png",
-    "splash": {
-      "backgroundColor": "#000000"
-    },
-    "ios": {
-      "supportsTablet": false,
-      "bundleIdentifier": "com.pana.marketplace"
-    },
-    "android": {
-      "package": "com.pana.marketplace",
-      "adaptiveIcon": {
-        "foregroundImage": "./android/app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png",
-        "backgroundColor": "#000000"
-      }
-    }
-  }
+  "displayName": "PANA - Tu Mercado IA"
 }

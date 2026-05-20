@@ -1,185 +1,109 @@
-import '@react-native-firebase/app';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import storage from '@react-native-firebase/storage';
 import functions from '@react-native-firebase/functions';
+import { User } from '@apptypes/index';
 
-export const FIREBASE_AUTH = auth;
-export const FIREBASE_STORE = firestore;
-export const FIREBASE_STORAGE = storage;
-export const FIREBASE_FUNCTIONS = functions;
+export class AuthService {
+  static onAuthStateChanged(callback: (user: User | null) => void) {
+    return auth().onAuthStateChanged(async (firebaseUser) => {
+      if (firebaseUser) {
+        const userData: User = {
+          uid: firebaseUser.uid,
+          email: firebaseUser.email || '',
+          displayName: firebaseUser.displayName || 'Usuario PANA',
+          photoURL: firebaseUser.photoURL || undefined,
+          phoneNumber: firebaseUser.phoneNumber || undefined,
+          createdAt: new Date(),
+          isBusiness: false,
+          businessType: 'AMBOS',
+          state: '',
+          city: '',
+          followersCount: 0,
+          followingCount: 0,
+        };
+        callback(userData);
+      } else {
+        callback(null);
+      }
+    });
+  }
 
-export const db = firestore();
+  static async login(email: string, password: string) {
+    await auth().signInWithEmailAndPassword(email, password);
+  }
 
-export const AuthService = {
-  register: async (email: string, password: string, displayName: string) => {
+  static async register(email: string, password: string, displayName: string) {
     const result = await auth().createUserWithEmailAndPassword(email, password);
     await result.user.updateProfile({ displayName });
-    await db.collection('users').doc(result.user.uid).set({
-      uid: result.user.uid,
-      email,
-      displayName,
-      createdAt: firestore.FieldValue.serverTimestamp(),
-      isBusiness: false,
-      businessType: 'AMBOS',
-      followersCount: 0,
-      followingCount: 0,
-    });
-    return result.user;
-  },
+    return result;
+  }
 
-  login: async (email: string, password: string) => {
-    const result = await auth().signInWithEmailAndPassword(email, password);
-    return result.user;
-  },
-
-  logout: async () => {
+  static async logout() {
     await auth().signOut();
-  },
+  }
 
-  getCurrentUser: () => {
+  static getCurrentUser() {
     return auth().currentUser;
-  },
+  }
+}
 
-  onAuthStateChanged: (callback: (user: any) => void) => {
-    return auth().onAuthStateChanged(callback);
-  },
+export class FirestoreService {
+  static async getDocument(collection: string, docId: string) {
+    const doc = await firestore().collection(collection).doc(docId).get();
+    return doc.data();
+  }
 
-  updateProfile: async (data: Partial<{ displayName: string; photoURL: string; phoneNumber: string }>) => {
-    const user = auth().currentUser;
-    if (!user) throw new Error('Usuario no autenticado');
-    await user.updateProfile(data);
-    await db.collection('users').doc(user.uid).update(data);
-  },
-};
+  static async setDocument(collection: string, docId: string, data: any) {
+    await firestore().collection(collection).doc(docId).set(data);
+  }
 
-export const VideoService = {
-  uploadVideo: async (userId: string, videoUri: string, thumbnailUri: string, data: any) => {
-    const videoId = `${userId}_${Date.now()}`;
-    const videoRef = storage().ref(`videos/${userId}/${videoId}.mp4`);
-    const thumbRef = storage().ref(`thumbnails/${userId}/${videoId}.jpg`);
+  static async updateDocument(collection: string, docId: string, data: any) {
+    await firestore().collection(collection).doc(docId).update(data);
+  }
 
-    await videoRef.putFile(videoUri);
-    await thumbRef.putFile(thumbnailUri);
+  static async deleteDocument(collection: string, docId: string) {
+    await firestore().collection(collection).doc(docId).delete();
+  }
 
-    const videoURL = await videoRef.getDownloadURL();
-    const thumbnailURL = await thumbRef.getDownloadURL();
+  static async getCollection(collection: string) {
+    const snapshot = await firestore().collection(collection).get();
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  }
 
-    await db.collection('videos').doc(videoId).set({
-      id: videoId,
-      userId,
-      videoURL,
-      thumbnailURL,
-      ...data,
-      views: 0,
-      likes: 0,
-      shares: 0,
-      comments: [],
-      isActive: true,
-      createdAt: firestore.FieldValue.serverTimestamp(),
-    });
-
-    return videoId;
-  },
-
-  getVideos: async (lastVisible?: any, limit: number = 10) => {
-    let query: any = db.collection('videos')
-      .where('isActive', '==', true)
-      .orderBy('createdAt', 'desc')
-      .limit(limit);
-
-    if (lastVisible) {
-      query = query.startAfter(lastVisible);
-    }
-
-    const snapshot = await query.get();
-    const videos = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
-    return { videos, lastVisible: snapshot.docs[snapshot.docs.length - 1] };
-  },
-
-  getUserVideos: async (userId: string) => {
-    const snapshot = await db.collection('videos')
-      .where('userId', '==', userId)
-      .orderBy('createdAt', 'desc')
+  static async query(
+    collection: string,
+    field: string,
+    operator: FirebaseFirestore.WhereFilterOp,
+    value: any,
+  ) {
+    const snapshot = await firestore()
+      .collection(collection)
+      .where(field, operator, value)
       .get();
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  }
+}
 
-    return snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
-  },
+export class StorageService {
+  static async uploadFile(path: string, uri: string) {
+    const ref = storage().ref(path);
+    await ref.putFile(uri);
+    return await ref.getDownloadURL();
+  }
 
-  getVideoById: async (videoId: string) => {
-    const doc = await db.collection('videos').doc(videoId).get();
-    if (!doc.exists) throw new Error('Video no encontrado');
-    return { id: doc.id, ...doc.data() };
-  },
+  static async deleteFile(path: string) {
+    await storage().ref(path).delete();
+  }
 
-  deleteVideo: async (videoId: string, userId: string) => {
-    const video = await db.collection('videos').doc(videoId).get();
-    const data = video.data() as any;
-    if (data.userId !== userId) throw new Error('No autorizado');
+  static async getDownloadURL(path: string) {
+    return await storage().ref(path).getDownloadURL();
+  }
+}
 
-    const videoRef = storage().refFromURL(data.videoURL);
-    const thumbRef = storage().refFromURL(data.thumbnailURL);
-
-    await Promise.all([
-      videoRef.delete(),
-      thumbRef.delete(),
-      db.collection('videos').doc(videoId).delete(),
-    ]);
-  },
-
-  incrementViews: async (videoId: string) => {
-    await db.collection('videos').doc(videoId).update({
-      views: firestore.FieldValue.increment(1),
-    });
-  },
-
-  toggleLike: async (videoId: string, userId: string) => {
-    const videoRef = db.collection('videos').doc(videoId);
-    const likeRef = db.collection('videos').doc(videoId).collection('likes').doc(userId);
-    const likeDoc = await likeRef.get();
-
-    if (likeDoc.exists) {
-      await Promise.all([
-        likeRef.delete(),
-        videoRef.update({ likes: firestore.FieldValue.increment(-1) }),
-      ]);
-      return false;
-    } else {
-      await Promise.all([
-        likeRef.set({ userId, timestamp: firestore.FieldValue.serverTimestamp() }),
-        videoRef.update({ likes: firestore.FieldValue.increment(1) }),
-      ]);
-      return true;
-    }
-  },
-};
-
-export const SearchService = {
-  searchVideos: async (query: string, category?: string, transactionType?: string) => {
-    let ref: any = db.collection('videos').where('isActive', '==', true);
-
-    if (category) {
-      ref = ref.where('category', '==', category);
-    }
-    if (transactionType) {
-      ref = ref.where('transactionType', '==', transactionType);
-    }
-
-    const snapshot = await ref.get();
-    let results = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() }));
-
-    const searchTerms = query.toLowerCase().split(' ');
-    results = results.filter((video: any) =>
-      searchTerms.some(
-        (term: string) =>
-          video.title?.toLowerCase().includes(term) ||
-          video.description?.toLowerCase().includes(term) ||
-          video.tags?.some((tag: string) => tag.toLowerCase().includes(term))
-      )
-    );
-
-    return results;
-  },
-};
-
-
+export class FunctionsService {
+  static async call(name: string, data?: any) {
+    const result = await functions().httpsCallable(name)(data);
+    return result.data;
+  }
+}

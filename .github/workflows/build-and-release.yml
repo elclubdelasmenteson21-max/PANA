@@ -5,10 +5,6 @@ on:
     branches: [main]
   workflow_dispatch:
     inputs:
-      release:
-        description: 'Create GitHub Release'
-        type: boolean
-        default: false
       build_type:
         description: 'Build type'
         type: choice
@@ -29,7 +25,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
           cache: 'npm'
 
       - name: Setup JDK 17
@@ -42,21 +38,9 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Install dependencies
-        run: |
-          npm ci
-          npx patch-package
+        run: npm ci
 
-      - name: Fix deprecated Gradle configs in legacy libraries
-        run: |
-          for f in node_modules/*/android/build.gradle node_modules/@*/*/android/build.gradle; do
-            if [ -f "$f" ]; then
-              sed -i 's/compile /implementation /g' "$f" 2>/dev/null || true
-              sed -i 's/testCompile /testImplementation /g' "$f" 2>/dev/null || true
-              sed -i 's/androidTestCompile /androidTestImplementation /g' "$f" 2>/dev/null || true
-            fi
-          done
-
-      - name: Generate debug keystore (for debug builds)
+      - name: Generate debug keystore
         if: github.event.inputs.build_type != 'release'
         run: |
           keytool -genkey -v -keystore android/app/debug.keystore \
@@ -64,7 +48,7 @@ jobs:
             -keyalg RSA -keysize 2048 -validity 10000 \
             -dname "CN=Android Debug, O=Android, C=US"
 
-      - name: Generate release keystore (for release builds)
+      - name: Generate release keystore
         if: github.event.inputs.build_type == 'release'
         run: |
           keytool -genkey -v -keystore android/app/release.keystore \

@@ -1,73 +1,22 @@
 buildscript {
     ext {
-        buildToolsVersion = "34.0.0"
-        minSdkVersion = 23
-        compileSdkVersion = 34
-        targetSdkVersion = 34
-        ndkVersion = "25.1.8937393"
-        kotlinVersion = "1.8.0"
+        buildToolsVersion = "36.0.0"
+        minSdkVersion = 24
+        compileSdkVersion = 36
+        targetSdkVersion = 36
+        ndkVersion = "27.1.12297006"
+        kotlinVersion = "2.1.20"
     }
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:8.1.0")
-        classpath("com.google.gms:google-services:4.3.15")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
+        classpath("com.android.tools.build:gradle")
+        classpath("com.facebook.react:react-native-gradle-plugin")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
+        classpath("com.google.gms:google-services:4.4.2")
     }
 }
 
-plugins {
-    id("com.facebook.react.rootproject")
-}
-
-allprojects {
-    repositories {
-        maven { url("$rootDir/../node_modules/react-native/android") }
-        maven { url("$rootDir/../node_modules/jsc-android/dist") }
-        mavenCentral()
-        google()
-        maven { url 'https://www.jitpack.io' }
-    }
-}
-
-// Patch libraries for Gradle 8.x compatibility
-subprojects { subproject ->
-    subproject.configurations.all {
-        resolutionStrategy {
-            force 'com.facebook.react:react-android:0.73.4'
-            force 'com.facebook.react:hermes-android:0.73.4'
-
-            dependencySubstitution {
-                substitute module('com.facebook.react:react-native') using module('com.facebook.react:react-android:0.73.4')
-            }
-        }
-    }
-
-    // Fix deprecated 'compile' configuration used by some RN libraries
-    subproject.plugins.whenPluginAdded { plugin ->
-        if (plugin.class.name == 'com.android.build.gradle.LibraryPlugin' ||
-            plugin.class.name == 'com.android.build.gradle.AppPlugin') {
-            subproject.android {
-                compileSdkVersion rootProject.ext.compileSdkVersion
-                buildToolsVersion rootProject.ext.buildToolsVersion
-                buildFeatures {
-                    buildConfig = true
-                }
-                compileOptions {
-                    sourceCompatibility JavaVersion.VERSION_17
-                    targetCompatibility JavaVersion.VERSION_17
-                }
-                if (plugin.class.name == 'com.android.build.gradle.AppPlugin') {
-                    aaptOptions {
-                        additionalParameters "--no-version-vectors"
-                    }
-                }
-            }
-        }
-    }
-
-}
-
-
+apply plugin: "com.facebook.react.rootproject"

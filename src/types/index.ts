@@ -1,1 +1,58 @@
-export interface User {  uid: string;  email: string;  displayName: string;  photoURL?: string;  phoneNumber?: string;  createdAt: Date;  isBusiness: boolean;  businessName?: string;  businessType: 'B2B' | 'B2C' | 'AMBOS';  description?: string;  location?: string;  state: string;  city: string;  followersCount: number;  followingCount: number;}export interface Video {  id: string;  userId: string;  userDisplayName: string;  userPhotoURL?: string;  title: string;  description: string;  videoURL: string;  thumbnailURL: string;  duration: number;  category: Category;  tags: string[];  price?: number;  currency: 'Bs' | 'USD' | 'EUR' | 'PETRO';  transactionType: 'Venta' | 'Compra' | 'Intercambio' | 'Importacion' | 'Exportacion' | 'Produccion' | 'Distribucion';  location: string;  contactPhone?: string;  contactEmail?: string;  website?: string;  views: number;  likes: number;  shares: number;  comments: Comment[];  isActive: boolean;  createdAt: Date;  expiresAt?: Date;}export interface Comment {  id: string;  userId: string;  userDisplayName: string;  userPhotoURL?: string;  text: string;  createdAt: Date;}export interface AIMessage {  id: string;  role: 'user' | 'assistant' | 'system';  content: string;  timestamp: Date;  type: 'text' | 'voice' | 'command';}export type Category =  | 'Tecnologia'  | 'Hogar'  | 'Moda'  | 'Alimentos'  | 'Bebidas'  | 'Automotriz'  | 'Industrial'  | 'Construccion'  | 'Agricultura'  | 'Salud'  | 'Educacion'  | 'Servicios'  | 'Importacion'  | 'Exportacion'  | 'Otros';export type TransactionType =  | 'Venta'  | 'Compra'  | 'Intercambio'  | 'Importacion'  | 'Exportacion'  | 'Produccion'  | 'Distribucion';export interface AICommand {  intent: 'search' | 'upload' | 'profile' | 'gallery' | 'help' | 'settings' | 'custom';  params?: Record<string, string>;  rawText: string;}
+export interface User {
+  uid: string;
+  email: string;
+  displayName: string;
+  photoURL?: string;
+  phoneNumber?: string;
+  createdAt: Date;
+  isBusiness: boolean;
+  businessType: 'AMBOS' | 'COMPRA' | 'VENTA';
+  state: string;
+  city: string;
+  followersCount: number;
+  followingCount: number;
+}
+
+export interface Video {
+  id: string;
+  userId: string;
+  userDisplayName: string;
+  userPhotoURL?: string;
+  videoURL: string;
+  thumbnailURL?: string;
+  description: string;
+  tags: string[];
+  businessType: 'AMBOS' | 'COMPRA' | 'VENTA';
+  category: string;
+  price?: number;
+  currency?: string;
+  location?: string;
+  likes: number;
+  comments: number;
+  shares: number;
+  createdAt: Date;
+}
+
+export interface AIRequest {
+  prompt: string;
+  context?: Record<string, unknown>;
+}
+
+export interface AIResponse {
+  text: string;
+  audio?: string;
+}
+
+export type RootStackParamList = {
+  Splash: undefined;
+  Main: undefined;
+  AI: undefined;
+};
+
+export type MainTabParamList = {
+  AI: undefined;
+  Home: undefined;
+  Upload: undefined;
+  Gallery: undefined;
+  Profile: undefined;
+};
