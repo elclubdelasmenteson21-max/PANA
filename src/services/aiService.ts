@@ -198,5 +198,11 @@ Debes detectar la intención del usuario y responder de manera natural.`;
   }
 }
 
-export const aiService = new AIService();
-export default aiService;
+let _aiService: AIService | null = null;
+export const getAiService = (): AIService => {
+  if (!_aiService) {
+    _aiService = new AIService();
+  }
+  return _aiService;
+};
+export default getAiService;

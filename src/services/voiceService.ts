@@ -155,5 +155,11 @@ class VoiceService {
   }
 }
 
-export const voiceService = new VoiceService();
-export default voiceService;
+let _voiceService: VoiceService | null = null;
+export const getVoiceService = (): VoiceService => {
+  if (!_voiceService) {
+    _voiceService = new VoiceService();
+  }
+  return _voiceService;
+};
+export default getVoiceService;

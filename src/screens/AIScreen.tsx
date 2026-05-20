@@ -17,8 +17,8 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { COLORS, SIZES } from '@constants/theme';
 import { STRINGS } from '@constants/strings';
 import { AIMessage, AICommand } from '@apptypes/index';
-import aiService from '@services/aiService';
-import voiceService from '@services/voiceService';
+import { getAiService } from '@services/aiService';
+import { getVoiceService } from '@services/voiceService';
 import SplashScreen from './SplashScreen';
 
 const AIScreen: React.FC<{ navigation?: any }> = ({ navigation }) => {
@@ -56,7 +56,7 @@ const AIScreen: React.FC<{ navigation?: any }> = ({ navigation }) => {
         type: 'text',
       };
       setMessages([greeting]);
-      voiceService.speak(greeting.content);
+      getVoiceService().speak(greeting.content);
     }
   }, [isActivated, fadeAnim, slideAnim]);
 
@@ -82,7 +82,7 @@ const AIScreen: React.FC<{ navigation?: any }> = ({ navigation }) => {
     setIsProcessing(true);
 
     try {
-      const response = await aiService.processMessage(userMessage, 'text');
+      const response = await getAiService().processMessage(userMessage, 'text');
       const assistantEntry: AIMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
@@ -95,7 +95,7 @@ const AIScreen: React.FC<{ navigation?: any }> = ({ navigation }) => {
 
       if (response.shouldSpeak) {
         setIsSpeaking(true);
-        await voiceService.speak(response.text);
+        await getVoiceService().speak(response.text);
         setIsSpeaking(false);
       }
 
@@ -118,14 +118,14 @@ const AIScreen: React.FC<{ navigation?: any }> = ({ navigation }) => {
 
   const handleVoiceInput = useCallback(async () => {
     if (isListening) {
-      await voiceService.stopListening();
+      await getVoiceService().stopListening();
       setIsListening(false);
       return;
     }
 
     try {
       setIsListening(true);
-      await voiceService.startListening(
+      await getVoiceService().startListening(
         async (text) => {
           setIsListening(false);
           if (text.trim()) {
@@ -151,7 +151,7 @@ const AIScreen: React.FC<{ navigation?: any }> = ({ navigation }) => {
 
             if (response.shouldSpeak) {
               setIsSpeaking(true);
-              await voiceService.speak(response.text);
+              await getVoiceService().speak(response.text);
               setIsSpeaking(false);
             }
 
