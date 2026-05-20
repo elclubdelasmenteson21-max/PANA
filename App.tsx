@@ -1,6 +1,5 @@
 import React from 'react';
 import { StatusBar, LogBox, View } from 'react-native';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { AuthProvider } from '@context/AuthContext';
 import AppNavigator from '@navigation/AppNavigator';
@@ -13,7 +12,7 @@ LogBox.ignoreLogs([
 
 const App: React.FC = () => {
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: COLORS.background }}>
+    <View style={{ flex: 1, backgroundColor: COLORS.background }}>
       <View style={{ flex: 1 }}>
         <StatusBar
           barStyle="light-content"
@@ -24,7 +23,7 @@ const App: React.FC = () => {
           <AppNavigator />
         </AuthProvider>
       </View>
-    </GestureHandlerRootView>
+    </View>
   );
 };
 
